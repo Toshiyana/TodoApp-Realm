@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class CategoryViewController: SwipeTableViewController {
     
@@ -35,7 +36,12 @@ class CategoryViewController: SwipeTableViewController {
         //swipeTableViewControllerよりtableView(cellForRowAt)のcellを継承
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
                 
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"//これがなぜか表示されない
+        
+        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color ?? "0A84FF")//colorがnilの時，nav barの色に設定
+        
+        cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)//backgroudcolorによって適宜textcolorを白か黒に設定
+
         
         return cell
         
@@ -104,6 +110,7 @@ class CategoryViewController: SwipeTableViewController {
             
             let newCategory = Category()//coredataと違ってcontextはいらない
             newCategory.name = textField.text!
+            newCategory.color = UIColor.randomFlat().hexValue()//ChameleonFrameworkを利用
             
             //self.categories.append(newCategory)//categoriesはresults型でauto updateされるので，appendする必要ない（realmの変数はmonitor状態にあり）
             

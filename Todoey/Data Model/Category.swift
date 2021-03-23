@@ -11,6 +11,7 @@ import RealmSwift
 
 class Category: Object {
     @objc dynamic var name: String = ""
+    @objc dynamic var color: String = ""
     let items = List<Item>()//realmで1対多のrelationalなdatabaseを作る際にList<型>を定義
     
     //List<Item>は以下と同じ意味

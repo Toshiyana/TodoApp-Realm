@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
@@ -39,6 +40,16 @@ class TodoListViewController: SwipeTableViewController {
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
             cell.accessoryType = item.done ? .checkmark : .none
+            
+            let colorCategory = UIColor(hexString: selectedCategory!.color)//add new Itemsでitemを追加した時点で必ずselectedCategoryは存在するのでforce unwrappingしてもおけ
+            
+            //colorCategory?.darken()はcolorCategoryが存在した場合にdarken以下の処理を実行
+            //optional bindingを行った場合，todoItems?.countでなく，todoItems!.countとして良い（nilでも動作が保証されるので）
+            if let colorCell = colorCategory?.darken(byPercentage: CGFloat(indexPath.row)/CGFloat(todoItems!.count)) {
+                cell.backgroundColor = colorCell
+                cell.textLabel?.textColor = ContrastColorOf(colorCell, returnFlat: true)//backgroudcolorによって適宜textcolorを白か黒に設定
+            }
+                    
         } else {
             cell.textLabel?.text = "No Items Added"
         }
