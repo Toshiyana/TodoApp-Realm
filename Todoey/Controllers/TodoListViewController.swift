@@ -12,6 +12,8 @@ import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     var todoItems: Results<Item>?
     let realm = try! Realm()
     
@@ -26,7 +28,39 @@ class TodoListViewController: SwipeTableViewController {
         
         //print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
 
+        //title = selectedCategory?.name//navigationControllerをいじらず，titleだけを変えるならこっちの方が良い？
+        
     }
+    
+    //画面に表示される直前
+    //viewDidLoad()ではnavigationControllerは生成されておらず，navigationControllerを用いる場合，表示直前のviewWillAppear()を用いる
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)//lifecycle methodではsuperで継承
+        
+        if let colorHex = selectedCategory?.color {
+
+            title = selectedCategory!.name//navbarのタイトルをカテゴリ名に設定
+
+            guard let navBar = navigationController?.navigationBar else {
+                fatalError("NavigationController does not exist.")
+            }
+
+            
+            if let navBarColor = UIColor(hexString: colorHex) {
+                navBar.barTintColor = navBarColor
+                navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)//navbarのback，buttonの色を変更
+                navBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]//navbarのtitleのcolorを変更
+                
+                searchBar.barTintColor = navBarColor
+
+            }
+            searchBar.searchTextField.backgroundColor = UIColor.white//iOS13以降,searchBar.barTintColorを変えると，textFieldの色も変わってしまうので，別に設定する必要あり
+            
+            
+        }
+    }
+    
+    
     
     //MARK: - Tableview Datasource Methods
     

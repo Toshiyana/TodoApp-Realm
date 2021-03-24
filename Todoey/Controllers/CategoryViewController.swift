@@ -20,7 +20,18 @@ class CategoryViewController: SwipeTableViewController {
         super.viewDidLoad()
         
         loadCategories()
-        
+
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        guard let navBar = navigationController?.navigationBar else {
+            fatalError("NavigationController does not exist.")
+        }
+
+        navBar.barTintColor = UIColor(hexString: "0A84FF")
+        navBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]//navbarのtitleのcolorを変更
     }
     
     //MARK: - TableView Datasource Methods
@@ -35,12 +46,19 @@ class CategoryViewController: SwipeTableViewController {
         
         //swipeTableViewControllerよりtableView(cellForRowAt)のcellを継承
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-                
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"//これがなぜか表示されない
         
-        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color ?? "0A84FF")//colorがnilの時，nav barの色に設定
-        
-        cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)//backgroudcolorによって適宜textcolorを白か黒に設定
+        if let category = categories?[indexPath.row] {
+
+            cell.textLabel?.text = category.name
+            
+            //categoryColorはoptionalなのでvalueにする
+            guard let categoryColor = UIColor(hexString: category.color) else { fatalError() }
+            
+            cell.backgroundColor = categoryColor
+            
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)//backgroudcolorによって適宜textcolorを白か黒に設定
+
+        }
 
         
         return cell
