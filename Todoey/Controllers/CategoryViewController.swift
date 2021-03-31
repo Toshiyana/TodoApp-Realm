@@ -21,6 +21,7 @@ class CategoryViewController: SwipeTableViewController {
         
         loadCategories()
 
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -96,8 +97,12 @@ class CategoryViewController: SwipeTableViewController {
     
     func loadCategories() {
         
-        categories = realm.objects(Category.self)//この一行でCategoryの全てのobjectを読み込み可能（coredataのようなrequestの記述が不要）, 戻り値はRealmSwiftのResults型（Container型でlistやarrayのようなもの）
-       
+        categories = realm.objects(Category.self)
+        
+        if categories?.count != nil {
+            categories = categories?.sorted(byKeyPath: "orderOfCategory")
+        }
+        
         tableView.reloadData()
         
     }
@@ -116,6 +121,53 @@ class CategoryViewController: SwipeTableViewController {
         }
     }
     
+    //MARK: - Moving Cell Method in Realm
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        do {
+            try realm.write {
+                let sourceCategory = categories?[sourceIndexPath.row]
+                let destinationCategory = categories?[destinationIndexPath.row]
+                
+                let destinationCategoryOrder = destinationCategory?.orderOfCategory
+                
+                if sourceIndexPath.row < destinationIndexPath.row {
+                    for index in sourceIndexPath.row ... destinationIndexPath.row {
+                        categories?[index].orderOfCategory -= 1
+                    }
+                } else {
+                    for index in (destinationIndexPath.row ..< sourceIndexPath.row).reversed() {
+                        categories?[index].orderOfCategory += 1
+                    }
+                }
+                
+                guard let destOrder = destinationCategoryOrder else {
+                    fatalError("destinationCategoryOrder does not exist")
+                }
+                sourceCategory?.orderOfCategory = destOrder
+            }
+        } catch {
+            print("Error moving the cell, \(error)")
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    @IBAction func editButtonPressed(_ sender: UIBarButtonItem) {
+        
+        if tableView.isEditing {
+            tableView.isEditing = false
+        } else {
+            tableView.isEditing = true
+        }
+        
+    }
+    
     //MARK: - Add New Categories
 
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
@@ -130,7 +182,9 @@ class CategoryViewController: SwipeTableViewController {
             newCategory.name = textField.text!
             newCategory.color = UIColor.randomFlat().hexValue()//ChameleonFrameworkを利用
             
-            //self.categories.append(newCategory)//categoriesはresults型でauto updateされるので，appendする必要ない（realmの変数はmonitor状態にあり）
+            if let count = self.categories?.count {
+                newCategory.orderOfCategory = count
+            }
             
             self.save(category: newCategory)
             

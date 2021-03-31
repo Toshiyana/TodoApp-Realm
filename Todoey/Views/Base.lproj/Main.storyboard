@@ -31,12 +31,20 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Todoey" id="vTC-0e-tpE">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="9ES-LT-Xz4">
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <connections>
-                                <action selector="addButtonPressed:" destination="qR3-UI-YkX" id="JWh-5s-3JK"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem systemItem="add" id="9ES-LT-Xz4">
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <action selector="addButtonPressed:" destination="qR3-UI-YkX" id="JWh-5s-3JK"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Sort" id="3HM-mk-bXo">
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <action selector="editButtonPressed:" destination="qR3-UI-YkX" id="hrL-ET-dlS"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <segue destination="0k3-aa-NJ4" kind="show" identifier="goToItems" id="pbD-17-3iN"/>
