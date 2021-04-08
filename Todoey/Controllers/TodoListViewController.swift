@@ -10,7 +10,7 @@ import UIKit
 import RealmSwift
 import ChameleonFramework
 
-class TodoListViewController: SwipeTableViewController {
+class TodoListViewController: AddEditTableViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
     
@@ -29,7 +29,6 @@ class TodoListViewController: SwipeTableViewController {
         //print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
 
         //title = selectedCategory?.name//navigationControllerをいじらず，titleだけを変えるならこっちの方が良い？
-        
     }
     
     //画面に表示される直前
@@ -63,7 +62,6 @@ class TodoListViewController: SwipeTableViewController {
     
     
     //MARK: - Tableview Datasource Methods
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return todoItems?.count ?? 1
     }
@@ -92,7 +90,6 @@ class TodoListViewController: SwipeTableViewController {
     }
         
     //MARK: - TableView Delegate Methods
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         if let item = todoItems?[indexPath.row] {
@@ -109,10 +106,9 @@ class TodoListViewController: SwipeTableViewController {
         tableView.reloadData()
                 
         tableView.deselectRow(at: indexPath, animated: true)
-        
     }
     
-    //MARK: - Delete Data from Swipe
+    //MARK: - Delete Data Method
     override func updateModel(at indexPath: IndexPath) {
         if let item = todoItems?[indexPath.row] {
             do {
@@ -124,18 +120,16 @@ class TodoListViewController: SwipeTableViewController {
             }
         }
     }
-    
-    //MARK: - Add New Items
-    
-    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
+    override func addButtonPressed(_ sender: UIBarButtonItem) {
+
         var textField = UITextField()
-        
+
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+
+        let addAction = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //what will happen once the user clicks the Add Item button on our UIAlert
-            
+
             if let currentCategory = self.selectedCategory {
                 do {
                     try self.realm.write {
@@ -150,28 +144,78 @@ class TodoListViewController: SwipeTableViewController {
             }
             self.tableView.reloadData()
         }
-        
+
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new item"
             textField = alertTextField
-            
+
         }
-        
-        
-        alert.addAction(action)
-        
+
+        let canelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
+        alert.addAction(addAction)
+        alert.addAction(canelAction)
+
         present(alert, animated: true, completion: nil)
-        
     }
     
-    //MARK - Model Manupulation Methods
+    //MARK: - Data Manupulation Method
     func loadItems() {
 
-        todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        //todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        
+//        todoItems = selectedCategory?.items
+//
+//        if todoItems?.count != nil {
+//            todoItems = todoItems?.sorted(byKeyPath: "orderOfItem")
+//        }
+//
+//        tableView.reloadData()
+
         
         tableView.reloadData()
 
     }
+    
+    
+    //MARK: - Editing Cell Method in Realm
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        //move cell in Editing mode
+        do {
+            try realm.write {
+                let sourceCategory = todoItems?[sourceIndexPath.row]
+                let destinationCategory = todoItems?[destinationIndexPath.row]
+                
+                let destinationCategoryOrder = destinationCategory?.orderOfItem
+                
+                if sourceIndexPath.row < destinationIndexPath.row {
+                    for index in sourceIndexPath.row ... destinationIndexPath.row {
+                        todoItems?[index].orderOfItem -= 1
+                    }
+                } else {
+                    for index in (destinationIndexPath.row ..< sourceIndexPath.row).reversed() {
+                        todoItems?[index].orderOfItem += 1
+                    }
+                }
+                
+                guard let destOrder = destinationCategoryOrder else {
+                    fatalError("destinationCategoryOrder does not exist")
+                }
+                sourceCategory?.orderOfItem = destOrder
+            }
+        } catch {
+            print("Error moving the cell, \(error)")
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        //delete cell in Editing mode
+        if editingStyle == .delete {
+            updateModel(at: indexPath)
+            loadItems()
+        }
+    }
+
     
 }
 

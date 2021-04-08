@@ -9,14 +9,19 @@
 import UIKit
 import SwipeCellKit
 
+
 //swipeTableViewCellに関するmethodをCategoryViewControllerとTodoListViewControllerで利用できるようにするために，作成したviewController
 class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegate{
 
+    //@IBOutlet weak var editButton: UIBarButtonItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         tableView.rowHeight = 80.0//swipeした時にゴミ箱画像がきれいに見えるように高さを変更
         tableView.separatorStyle = .none
+        
+        
     }
     
     //MARK: - TableView Datasource Methods
@@ -30,17 +35,16 @@ class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegat
 
     //MARK: - SwipeCell Delegate Mehods
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        
         guard orientation == .right else { return nil }//swipeの始まりが右の場合
 
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
             // handle action by updating model with deletion
-            //swipeされた時に行う処理を記述
-            //print("Item deleted")
             self.updateModel(at: indexPath)//継承先でoverrideしたものが呼び出される
         }
 
         // customize the action appearance
-        deleteAction.image = UIImage(named: "Delete-Icon")//画像のファイル名
+        //deleteAction.image = UIImage(named: "Delete-Icon")//画像のファイル名
 
         return [deleteAction]
     }
@@ -56,4 +60,5 @@ class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegat
     func updateModel(at indexPath: IndexPath) {
         //Update data model.
     }
+    
 }

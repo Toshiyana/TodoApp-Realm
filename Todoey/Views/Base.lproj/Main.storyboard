@@ -31,22 +31,18 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Todoey" id="vTC-0e-tpE">
-                        <rightBarButtonItems>
-                            <barButtonItem systemItem="add" id="9ES-LT-Xz4">
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <action selector="addButtonPressed:" destination="qR3-UI-YkX" id="JWh-5s-3JK"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem title="Sort" id="3HM-mk-bXo">
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <action selector="editButtonPressed:" destination="qR3-UI-YkX" id="hrL-ET-dlS"/>
-                                </connections>
-                            </barButtonItem>
-                        </rightBarButtonItems>
+                        <barButtonItem key="leftBarButtonItem" title="Item" image="gearshape.fill" catalog="system" id="cIf-kg-7Ah">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="3HM-mk-bXo">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <action selector="editButtonPressed:" destination="qR3-UI-YkX" id="WBT-Hh-yQL"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="editButton" destination="3HM-mk-bXo" id="IY1-90-axo"/>
                         <segue destination="0k3-aa-NJ4" kind="show" identifier="goToItems" id="pbD-17-3iN"/>
                     </connections>
                 </tableViewController>
@@ -86,13 +82,15 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Items" largeTitleDisplayMode="always" id="jfb-NI-sI4">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="YK2-OQ-nsA">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="rBL-dF-1dI">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
-                                <action selector="addButtonPressed:" destination="0k3-aa-NJ4" id="cEo-rW-6tx"/>
+                                <action selector="editButtonPressed:" destination="0k3-aa-NJ4" id="WB1-Ze-rkL"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="editButton" destination="rBL-dF-1dI" id="rBt-Mc-wqO"/>
                         <outlet property="searchBar" destination="WNj-vd-XOL" id="O05-Sm-fj9"/>
                     </connections>
                 </tableViewController>
@@ -126,4 +124,7 @@
             <point key="canvasLocation" x="-562" y="134"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="gearshape.fill" catalog="system" width="128" height="121"/>
+    </resources>
 </document>

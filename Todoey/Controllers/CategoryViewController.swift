@@ -10,8 +10,8 @@ import UIKit
 import RealmSwift
 import ChameleonFramework
 
-class CategoryViewController: SwipeTableViewController {
-    
+class CategoryViewController: AddEditTableViewController {
+        
     let realm = try! Realm()//try!の意味は後で調べる（!はつけた方が良いときとそうでない時があるみたい）
     
     var categories: Results<Category>?//RealmSwiftはResults型を扱う（listやarrayのようなもの,queryでrealmdatabaseからdataを取得する際はresults型を利用）
@@ -20,7 +20,6 @@ class CategoryViewController: SwipeTableViewController {
         super.viewDidLoad()
         
         loadCategories()
-
         
     }
     
@@ -81,7 +80,7 @@ class CategoryViewController: SwipeTableViewController {
         }
     }
     
-    //MARK: - Data Manipulation Methods
+    //MARK: - Data Manupulation Methods
     func save(category: Category) {
         do {
             try realm.write {
@@ -107,7 +106,8 @@ class CategoryViewController: SwipeTableViewController {
         
     }
     
-    //MARK: - Delete Data from Swipe
+    
+    //MARK: - Delete Data Method
     override func updateModel(at indexPath: IndexPath) {
         if let category = categories?[indexPath.row] {
             do {
@@ -121,8 +121,9 @@ class CategoryViewController: SwipeTableViewController {
         }
     }
     
-    //MARK: - Moving Cell Method in Realm
+    //MARK: - Editing Cell Method in Realm
     override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        //move cell in Editing mode
         do {
             try realm.write {
                 let sourceCategory = categories?[sourceIndexPath.row]
@@ -150,33 +151,23 @@ class CategoryViewController: SwipeTableViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-    
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-
-    @IBAction func editButtonPressed(_ sender: UIBarButtonItem) {
-        
-        if tableView.isEditing {
-            tableView.isEditing = false
-        } else {
-            tableView.isEditing = true
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        //delete cell in Editing mode
+        if editingStyle == .delete {
+            updateModel(at: indexPath)
+            loadCategories()
         }
-        
     }
-    
+        
     //MARK: - Add New Categories
 
-    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+    override func addButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
         
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Add", style: .default) { (action) in
+        let addAction = UIAlertAction(title: "Add", style: .default) { (action) in
             
             let newCategory = Category()//coredataと違ってcontextはいらない
             newCategory.name = textField.text!
@@ -190,7 +181,10 @@ class CategoryViewController: SwipeTableViewController {
             
         }
         
-        alert.addAction(action)
+        let canelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addAction(addAction)
+        alert.addAction(canelAction)
         
         alert.addTextField { (field) in
             textField = field
