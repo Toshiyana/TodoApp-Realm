@@ -10,8 +10,10 @@ import UIKit
 import RealmSwift
 import ChameleonFramework
 
-class TodoListViewController: AddEditTableViewController {
+class TodoListViewController: SwipeTableViewController {
     
+    private var addButton: FloatingButton!
+    @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var searchBar: UISearchBar!
     
     var todoItems: Results<Item>?
@@ -25,6 +27,9 @@ class TodoListViewController: AddEditTableViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        addButton = FloatingButton(attachedToView: self.view)
+        addButton.floatButton.addTarget(self, action: #selector(addButtonPressed(_:)), for: .touchUpInside)
         
         //print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
 
@@ -120,8 +125,9 @@ class TodoListViewController: AddEditTableViewController {
             }
         }
     }
-        
-    override func addButtonPressed(_ sender: UIBarButtonItem) {
+    
+    //MARK: - Add New Items
+    @objc private func addButtonPressed(_ sender: FloatingButton) {
 
         var textField = UITextField()
 
@@ -148,7 +154,6 @@ class TodoListViewController: AddEditTableViewController {
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new item"
             textField = alertTextField
-
         }
 
         let canelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -162,16 +167,8 @@ class TodoListViewController: AddEditTableViewController {
     //MARK: - Data Manupulation Method
     func loadItems() {
 
-        //todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-        
-//        todoItems = selectedCategory?.items
-//
-//        if todoItems?.count != nil {
-//            todoItems = todoItems?.sorted(byKeyPath: "orderOfItem")
-//        }
-//
-//        tableView.reloadData()
-
+//        todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        todoItems = selectedCategory?.items.sorted(byKeyPath: "orderOfItem")
         
         tableView.reloadData()
 
@@ -215,8 +212,31 @@ class TodoListViewController: AddEditTableViewController {
             loadItems()
         }
     }
+        
+    //MARK: - Edit Button Methods
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
 
-    
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    @IBAction func editButtonPressed(_ sender: UIBarButtonItem) {
+
+        if tableView.isEditing {
+            tableView.isEditing = false
+            editButton.title = "Edit"
+            addButton.floatButton.isHidden = false
+
+        } else {
+            tableView.isEditing = true
+            editButton.title = "Done"
+            addButton.floatButton.isHidden = true
+
+        }
+
+    }
 }
 
 //MARK: - Search bar methods
@@ -240,11 +260,3 @@ extension TodoListViewController: UISearchBarDelegate {
         }
     }
 }
-
-
-
-
-
-
-
-

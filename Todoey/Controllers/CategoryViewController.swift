@@ -10,8 +10,11 @@ import UIKit
 import RealmSwift
 import ChameleonFramework
 
-class CategoryViewController: AddEditTableViewController {
-        
+class CategoryViewController: SwipeTableViewController {
+    
+    private var addButton: FloatingButton!
+    @IBOutlet weak var editButton: UIBarButtonItem!
+    
     let realm = try! Realm()//try!の意味は後で調べる（!はつけた方が良いときとそうでない時があるみたい）
     
     var categories: Results<Category>?//RealmSwiftはResults型を扱う（listやarrayのようなもの,queryでrealmdatabaseからdataを取得する際はresults型を利用）
@@ -20,7 +23,8 @@ class CategoryViewController: AddEditTableViewController {
         super.viewDidLoad()
         
         loadCategories()
-        
+        addButton = FloatingButton(attachedToView: self.view)
+        addButton.floatButton.addTarget(self, action: #selector(addButtonPressed(_:)), for: .touchUpInside)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -96,16 +100,10 @@ class CategoryViewController: AddEditTableViewController {
     
     func loadCategories() {
         
-        categories = realm.objects(Category.self)
-        
-        if categories?.count != nil {
-            categories = categories?.sorted(byKeyPath: "orderOfCategory")
-        }
-        
+        categories = realm.objects(Category.self).sorted(byKeyPath: "orderOfCategory")
+                
         tableView.reloadData()
-        
     }
-    
     
     //MARK: - Delete Data Method
     override func updateModel(at indexPath: IndexPath) {
@@ -158,40 +156,65 @@ class CategoryViewController: AddEditTableViewController {
             loadCategories()
         }
     }
+    
+    //MARK: - Edit Button Methods
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    @IBAction func editButtonPressed(_ sender: UIBarButtonItem) {
+
+        if tableView.isEditing {
+            tableView.isEditing = false
+            editButton.title = "Edit"
+            addButton.floatButton.isHidden = false
+
+        } else {
+            tableView.isEditing = true
+            editButton.title = "Done"
+            addButton.floatButton.isHidden = true
+
+        }
+
+    }
         
     //MARK: - Add New Categories
 
-    override func addButtonPressed(_ sender: UIBarButtonItem) {
-        
+    @objc private func addButtonPressed(_ sender: FloatingButton) {
+
         var textField = UITextField()
-        
+
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
-        
+
         let addAction = UIAlertAction(title: "Add", style: .default) { (action) in
-            
+
             let newCategory = Category()//coredataと違ってcontextはいらない
             newCategory.name = textField.text!
             newCategory.color = UIColor.randomFlat().hexValue()//ChameleonFrameworkを利用
-            
+
             if let count = self.categories?.count {
                 newCategory.orderOfCategory = count
             }
-            
+
             self.save(category: newCategory)
-            
+
         }
-        
+
         let canelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        
+
         alert.addAction(addAction)
         alert.addAction(canelAction)
-        
+
         alert.addTextField { (field) in
             textField = field
             textField.placeholder = "Add a new category"
         }
-        
+
         present(alert, animated: true, completion: nil)
-        
+
     }
 }
